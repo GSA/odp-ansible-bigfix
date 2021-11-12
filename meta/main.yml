@@ -1,0 +1,27 @@
+galaxy_info:
+  role_name: bigfix
+  author: Kannan Chithiraputhiran
+  description: Ansible role to install Bigfix agent on Cloud devices
+
+  min_ansible_version: 2.9
+  platforms:
+    - name: Windows
+      versions:
+        - 2019
+    - name: EL
+      versions:
+        - 8
+    - name: Ubuntu
+      versions:
+        - 18
+    - name: Amazon Linux 2
+      versions:
+        - 18
+  galaxy_tags:
+    - windows
+    - rhel
+    - ubuntu
+    - bigfix
+    - security
+    - Amazon Linux 2
+dependencies: []

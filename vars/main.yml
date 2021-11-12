@@ -1,0 +1,26 @@
+---
+# vars file for sectools-ansible-bigfix-agent
+
+# Redhat
+redhat_bigfix_agent_path: "/etc/opt/BESClient"
+redhat_bigfix_agent_url: "http://software.bigfix.com/download/bes/100/BESAgent-10.0.1.41-rhe6.x86_64.rpm"
+
+# Ubuntu 16, 18 
+ubuntu_bigfix_agent_path: "/etc/opt/BESClient"
+ubuntu_bigfix_agent_url: "http://software.bigfix.com/download/bes/100/BESAgent-10.0.1.41-ubuntu10.amd64.deb"
+
+# Windows
+windows_bigfix_agent_path: "C:\\Program Files (x86)\\BigFix Enterprise\\BES Client"
+windows_bigfix_agent_url: "BigFixAgent.msi" #"http://software.bigfix.com/download/bes/100/BigFix-BES-Client-10.0.1.41.exe"
+windows_agent_log: "C:\\Temp\\Logs"
+
+# BigFix Configurations
+# bigfix_actionsite_url: "/home/ubuntu/projects/ansible-bigfix/config_files/actionsite.afxm"
+# bigfix_besclient_config_url: "/home/ubuntu/projects/ansible-bigfix/config_files/besclient.config"
+# bigfix_client_settings_config_url: "<>/clientsettings.cfg"
+
+bigfix_custom_properties:
+  - { name: GSA SLA Compliance, value: " " }
+  - { name: GSA FISMA System, value: " " }
+  - { name: GSA Patch Group, value: " " }
+

@@ -1,0 +1,90 @@
+---
+- name: Checking whether BigFix agent installed
+  win_service:
+    name: besclient
+  register: agent
+
+- debug:
+    msg: "Bigfix agent not found"
+  when: not agent.exists
+
+- debug:
+    msg: "Bigfix agent found"
+  when: agent.exists
+
+- name: Create {{ windows_agent_log }} directory
+  win_file:
+    path: '{{ windows_agent_log }}'
+    recurse: yes
+    state: directory
+  when: not agent.exists
+
+- name: Create {{ windows_bigfix_agent_path }} directory
+  win_file:
+    path: '{{ windows_bigfix_agent_path }}'
+    recurse: yes
+    state: directory
+  when: not agent.exists
+
+- name: Copy actionsite.afxm to {{ windows_bigfix_agent_path }} directory
+  win_copy:
+    src: 'actionsite.afxm'
+    dest: '{{ windows_bigfix_agent_path }}\actionSite.afxm'
+  when: not agent.exists
+
+- name: Copy clientsettings.cfg to {{ windows_bigfix_agent_path }} directory
+  win_copy:
+    src: 'clientsettings.cfg'
+    dest: '{{ windows_bigfix_agent_path }}\clientsettings.cfg'
+  when: not agent.exists
+
+- name: Update clientsettings.cfg with Bigfix custom properties
+  win_lineinfile:
+    path: '{{ windows_bigfix_agent_path }}\clientsettings.cfg'
+    create: yes
+    backup: yes
+    insertafter: EOF
+    mode: 0644
+    line: '{{ item.name }}={{ item.value }}'
+    
+  with_items:
+    - "{{ bigfix_custom_properties }}"
+  when: not agent.stat.exists
+
+
+# Create Staging Folder
+- name: Create Staging Folder
+  win_file:
+    path: C:\build-artifacts
+    state: directory
+
+- name: Copy installer files to remote server
+  win_copy:
+    src: "{{ role_path }}/files/{{ package_name }}"
+    dest: "C:\\build-artifacts\\{{ package_name }}"
+
+- name: Install an FireEye agent
+  win_package:
+    path: "C:\\build-artifacts\\{{ package_name }}"
+    arguments: /qn
+
+- name: Copy BigFixAgent.msi to {{ windows_bigfix_agent_path }} directory
+  win_copy:
+    src: 'BigFixAgent.msi'
+    dest: '{{ windows_bigfix_agent_path }}\BigFixAgent.msi'
+  when: not agent.exists
+
+- name: Install Bigfix agent
+  win_package:
+    path: '{{ windows_bigfix_agent_path }}\BigFixAgent.msi'
+    log_path: '{{ windows_agent_log }}\bigfix_log.txt'
+    state: present
+  when: not agent.exists
+
+- name: Verify Bigfix service has started
+  win_service:
+    name: besclient
+    enabled: yes
+    state: started
+    start_mode: auto
+ 

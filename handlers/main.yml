@@ -1,0 +1,19 @@
+---
+# handlers file for sectools-ansible-bigfix-agent
+- name: Restart Bigfix service (RedHat)
+  service:
+    name: besclient
+    state: restarted
+  when: ansible_os_family = 'RedHat'
+  
+- name: Restart Bigfix service (Ubuntu)
+  service:
+    name: besclient
+    state: restarted
+  when: ansible_os_family = 'Ubuntu'
+
+- name: Restart Bigfix service (Windows)
+  win_service:
+    name: besclient
+    state: restarted
+  when: ansible_os_family = 'Windows'

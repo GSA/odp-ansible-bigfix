@@ -1,0 +1,79 @@
+---
+- name: Checking for BigFix agent installed
+  stat:
+    path: /etc/init.d/besclient
+  register: agent
+  
+- debug:
+    msg: "Bigfix agent not found"
+  when: not agent.stat.exists
+
+- debug:
+    msg: "Bigfix agent found"
+  when: agent.stat.exists
+
+- name: Create {{ ubuntu_bigfix_agent_path }} directory
+  file:
+    path: '{{ ubuntu_bigfix_agent_path }}'
+    recurse: yes
+    state: directory
+    mode: 0500
+  when: not agent.stat.exists
+  
+- name: Create /var/opt/BESClient directory
+  file:
+    path: '/var/opt/BESClient'
+    recurse: yes
+    state: directory
+    mode: 0500
+  when: not agent.stat.exists
+  
+- name: Copy besclient.config to {{ ubuntu_bigfix_agent_path }} directory
+  copy:
+    src: 'besclient.config'
+    dest: '/var/opt/BESClient/besclient.config'
+  when: not agent.stat.exists
+
+- name: Update besclient.config for Bigfix custom properties
+  lineinfile:
+    path: '/var/opt/BESClient/besclient.config'
+    create: yes
+    backup: yes
+    insertafter: EOF
+    mode: 0644
+    line: |
+      [Software\BigFix\EnterpriseClient\Settings\Client\{{ item.name }}]
+      value                          = {{ item.value }}
+      effective date                 = Tue,%2003%20Nov%202020%2009:32:11%20-0500
+      
+  with_items:
+    - "{{ bigfix_custom_properties }}"
+  when: not agent.stat.exists
+
+
+- name: Create Staging Folder
+  file:
+    path: /build-artifacts/
+    state: directory
+
+- name: Copy installer files to remote server
+  copy:
+    src: "{{ role_path }}/files/{{ package_name }}"
+    dest: "/build-artifacts/{{ package_name }}"
+
+- name: Install Bigfix agent
+  apt:
+    deb: /build-artifacts/{{ package_name }}
+  when: not agent.stat.exists
+  
+- name: Copy actionsite.afxm to {{ ubuntu_bigfix_agent_path }} directory
+  copy:
+    src: 'actionsite.afxm'
+    dest: '{{ ubuntu_bigfix_agent_path }}/actionsite.afxm'
+  when: not agent.stat.exists
+
+- name: Verify Bigfix service started
+  service:
+    name: besclient
+    enabled: yes
+    state: started
