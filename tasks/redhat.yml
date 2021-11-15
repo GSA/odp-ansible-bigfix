@@ -5,38 +5,29 @@
   register: agent
 
 - debug:
-    msg: "Bigfix agent not found"
-  when: not agent.stat.exists
+    msg: "{{ 'Bigfix agent is found' if agent.stat.exists else 'Bigfix agent is not found' }}"
 
-- debug:
-    msg: "Bigfix agent found"
-  when: agent.stat.exists
-
-- name: Create {{ redhat_bigfix_agent_path }} directory
+- name: Create {{ linux_bigfix_agent_path }} directory
   file:
-    path: '{{ redhat_bigfix_agent_path }}'
+    path: '{{ item }}'
     recurse: yes
     state: directory
     mode: 0500
+  loop:
+  - "{{ linux_agent_install_path }}"
+  - "{{ linux_agent_config_path }}"
+  - "/build-artifacts/"
   when: not agent.stat.exists
   
-- name: Create /var/opt/BESClient directory
-  file:
-    path: '/var/opt/BESClient'
-    recurse: yes
-    state: directory
-    mode: 0500
-  when: not agent.stat.exists
-
-- name: Copy besclient.config to /var/opt/BESClient directory
+- name: Copy besclient.config to config folder
   copy:
-    src: 'besclient.config'
-    dest: '/var/opt/BESClient/besclient.config'
+    src: besclient.config
+    dest: "{{ linux_agent_config_path }}/besclient.config"
   when: not agent.stat.exists
 
 - name: Update besclient.config for bigfix custom properties
   lineinfile:
-    path: /var/opt/BESClient/besclient.config
+    path: "{{ linux_agent_config_path }}/besclient.config"
     create: yes
     backup: yes
     insertafter: EOF
@@ -45,31 +36,25 @@
       [Software\BigFix\EnterpriseClient\Settings\Client\{{ item.name }}]
       value                          = {{ item.value }}
       effective date                 = Thu,%2020%20Aug%202020%2010:17:38%20-0500
-
   with_items:
-    - "{{ bigfix_custom_properties }}"
+  - "{{ bigfix_custom_properties }}"
   when: not agent.stat.exists
-
-- name: Create Staging Folder
-  file:
-    path: /build-artifacts/
-    state: directory
 
 - name: Copy installer files to remote server
   copy:
-    src: "{{ role_path }}/files/{{ package_name }}"
-    dest: "/build-artifacts/{{ package_name }}"
+    src: "{{ role_path }}/files/{{ BIGFIX_AGENT_PACKAGE_NAME }}"
+    dest: "/build-artifacts/{{ BIGFIX_AGENT_PACKAGE_NAME }}"
 
 - name: Install Bigfix agent
   yum:
-    name: /build-artifacts/{{ package_name }}
+    name: "/build-artifacts/{{ BIGFIX_AGENT_PACKAGE_NAME }}"
     state: present
   when: not agent.stat.exists
 
-- name: Copy actionsite.afxm to {{ redhat_bigfix_agent_path }} directory
+- name: Copy actionsite.afxm to install folder
   copy:
-    src: 'actionsite.afxm'
-    dest: '{{ redhat_bigfix_agent_path }}/actionsite.afxm'
+    src: "actionsite.afxm"
+    dest: "{{ linux_agent_install_path }}/actionsite.afxm"
   when: not agent.stat.exists
 
 - name: Verify BigFix started

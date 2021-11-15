@@ -1,20 +1,16 @@
 ---
-# defaults file for sectools-ansible-bigfix-agent
 
-#universal
+# Common Parameters
 bigfix_actionsite_url: "" # default actionsite.afxm url
 bigfix_custom_properties:
   - { name: GSA SLA Compliance, value: "Excluded" }
 
-#redhat
-redhat_bigfix_agent_path: "/etc/opt/BESClient" # Default Redhat install directory
+## Linux OS parameters
+linux_agent_install_path: /etc/opt/BESClient
+linux_agent_config_path: /var/opt/BESClient
 
-#ubuntu
-ubuntu_bigfix_agent_path: "/etc/opt/BESClient" # Default Ubuntu install directory
+#i# Windows OS Parameters
+windows_agent_install_path: "C:\\Program Files (x86)\\BigFix Enterprise\\BES Client" 
+windows_agent_log_path: "C:\\Temp\\Logs" 
 
-#windows
-windows_bigfix_agent_path: "C:\\Program Files (x86)\\BigFix Enterprise\\BES Client" # Default Windows install directory
-windows_agent_log: "C:\\Temp\\Logs" # Default Agent windows log directory
-
-
-package_name: ""
+BIGFIX_AGENT_PACKAGE_NAME: 
