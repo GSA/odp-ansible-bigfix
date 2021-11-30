@@ -5,7 +5,15 @@ The role supports Amazon Linux 2, Red Hat Enterprise Linux, Ubuntu and Windows.
 
 ## For Agent Configuration
 
-Before installation, obtain the actionsite.afxm configuration file specific to GSA and place in the 'files' directory. Update the bigfix_custom_properties in the vars/main.yml to tag instances on which the BF agent will be installed by FISMA system. A playbook named playbook.yml can be used to run the  install by running the following command, assuming the role is located in a local directory called 'bigfix'
+This role needs the followings to successfully install and configure the BigFix agent:
+ - installer binary file for the operating system, in which this role needs to install the agent. Installer file should be placed at files folder. For example:
+     - BESAgent-10.0.3.66-rhe6.x86_64.rpm for RedHat and Amazon Linux
+     - BESAgent-10.0.3.66-ubuntu10.amd64.deb for Ubuntu
+     - BigFixAgent.msi for Windows
+ - set the binary file name as value for BIGFIX_AGENT_PACKAGE_NAME as given in the code snippet below
+ - license file. Obtain the license file actionsite.afxm from GSA and place under files folder
+
+
 
 ```
 ansible-playbook playbook.yml -vvvv 
@@ -14,13 +22,15 @@ ansible-playbook playbook.yml -vvvv
 ```
 playbook.yml
 ---
-- hosts: "localhost"
+- hosts: your-host-name-or-ip
   become: yes
-  become_user: "root"
-  vars:
-    ansible_os_family: "Ubuntu"
   roles:
-    - bigfix
+  - { role: odp-ansible-bigfix, BIGFIX_AGENT_PACKAGE_NAME: "BESAgent-10.0.3.66-rhe6.x86_64.rpm" }
 ```
+
+  #- { role: odp-ansible-bigfix, BIGFIX_AGENT_PACKAGE_NAME: "BESAgent-10.0.3.66-rhe6.x86_64.rpm" }
+  #- { role: odp-ansible-bigfix, BIGFIX_AGENT_PACKAGE_NAME: "BESAgent-10.0.3.66-ubuntu10.amd64.deb" }
+  - { role: odp-ansible-bigfix, BIGFIX_AGENT_PACKAGE_NAME: "BigFixAgent.msi" }
+
 
 
