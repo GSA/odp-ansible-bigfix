@@ -1,0 +1,34 @@
+[Software\BigFix\EnterpriseClient]
+EnterpriseClientFolder         = /opt/BESClient
+
+[Software\BigFix\EnterpriseClient\GlobalOptions]
+StoragePath                    = /var/opt/BESClient
+LibPath                        = /opt/BESClient/BESLib
+LastClientVersion              = 10.0.1.41
+ActionLockController           = console
+LastKnownClockShift            = 0
+RegCount                       = 2256
+
+[Software\BigFix\EnterpriseClient\Settings\Client\__RelayServer1]
+value                          = {{ bigfix_server_url }}/bfmirror/downloads
+
+[Software\BigFix\EnterpriseClient\Settings\Client\__RelayServer2]
+value                          = {{ bigfix_server_url }}/bfmirror/downloads
+
+[Software\BigFix\EnterpriseClient\Settings\Client\_BESClient_Upgrade_UTF8Settings]
+value                          = 1
+
+[Software\BigFix\EnterpriseClient\Settings\Client\__Relay_Control_RootServer]
+value                          = {{ bigfix_server_url }}/cgi-bin/bfgather.exe/actionsite
+
+[Software\BigFix\EnterpriseClient\Settings\Client\__Relay_Control_Server1]
+value                          = {{ bigfix_server_url }}
+
+[Software\BigFix\EnterpriseClient\Settings\Client\__Relay_Control_Server2]
+value                          = ""
+
+[Software\BigFix\EnterpriseClient\Settings\Client\GSA FISMA System]
+#value                	= "GSA-FISMA-System"
+
+[Software\BigFix\EnterpriseClient\Settings\Client\GSA Patch Group]
+#value               	= "GSA-Patch-Group"
