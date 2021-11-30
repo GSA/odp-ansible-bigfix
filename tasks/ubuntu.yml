@@ -1,79 +1,59 @@
 ---
-- name: Checking for BigFix agent installed
-  stat:
-    path: /etc/init.d/besclient
-  register: agent
-  
-- debug:
-    msg: "Bigfix agent not found"
-  when: not agent.stat.exists
 
-- debug:
-    msg: "Bigfix agent found"
-  when: agent.stat.exists
+- name: Populate service facts
+  service_facts:
 
-- name: Create {{ ubuntu_bigfix_agent_path }} directory
+- name: Check if besclient.service is running
+  set_fact:
+    existing_installations: "'besclient.service' in services"
+
+- name: Stop and disable existing service
+  service:
+    name: besclient.service
+    state: stopped
+    enabled: false
+  when: existing_installations
+
+- name: Uninstall existing BigFix agent
+  apt:
+    name: besagent
+    state: absent
+  when: existing_installations
+
+- name: Create necessary folders
   file:
-    path: '{{ ubuntu_bigfix_agent_path }}'
+    path: "{{ item }}"
     recurse: yes
     state: directory
     mode: 0500
-  when: not agent.stat.exists
-  
-- name: Create /var/opt/BESClient directory
-  file:
-    path: '/var/opt/BESClient'
-    recurse: yes
-    state: directory
-    mode: 0500
-  when: not agent.stat.exists
-  
-- name: Copy besclient.config to {{ ubuntu_bigfix_agent_path }} directory
-  copy:
-    src: 'besclient.config'
-    dest: '/var/opt/BESClient/besclient.config'
-  when: not agent.stat.exists
-
-- name: Update besclient.config for Bigfix custom properties
-  lineinfile:
-    path: '/var/opt/BESClient/besclient.config'
-    create: yes
-    backup: yes
-    insertafter: EOF
-    mode: 0644
-    line: |
-      [Software\BigFix\EnterpriseClient\Settings\Client\{{ item.name }}]
-      value                          = {{ item.value }}
-      effective date                 = Tue,%2003%20Nov%202020%2009:32:11%20-0500
-      
-  with_items:
-    - "{{ bigfix_custom_properties }}"
-  when: not agent.stat.exists
-
-
-- name: Create Staging Folder
-  file:
-    path: /build-artifacts/
-    state: directory
+  loop:
+  - "{{ linux_agent_install_path }}"
+  - "{{ linux_agent_config_path }}"
+  - "/build-artifacts/"
 
 - name: Copy installer files to remote server
   copy:
-    src: "{{ role_path }}/files/{{ package_name }}"
-    dest: "/build-artifacts/{{ package_name }}"
+    src: "{{ role_path }}/files/{{ BIGFIX_AGENT_PACKAGE_NAME }}"
+    dest: "/build-artifacts/{{ BIGFIX_AGENT_PACKAGE_NAME }}"
 
 - name: Install Bigfix agent
   apt:
-    deb: /build-artifacts/{{ package_name }}
-  when: not agent.stat.exists
-  
-- name: Copy actionsite.afxm to {{ ubuntu_bigfix_agent_path }} directory
-  copy:
-    src: 'actionsite.afxm'
-    dest: '{{ ubuntu_bigfix_agent_path }}/actionsite.afxm'
-  when: not agent.stat.exists
+    deb: /build-artifacts/{{ BIGFIX_AGENT_PACKAGE_NAME  }}
 
-- name: Verify Bigfix service started
+
+- name: Copy besclient.config to config folder
+  template:
+    src: besclient.config.j2
+    dest: "{{ linux_agent_config_path }}/besclient.config"
+
+- name: Copy actionsite.afxm to install folder
+  copy:
+    src: bigfix_license.afxm
+    dest: "{{ linux_agent_install_path }}/actionsite.afxm"
+
+- name: BigFix started
   service:
     name: besclient
     enabled: yes
     state: started
+

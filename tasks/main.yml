@@ -2,12 +2,12 @@
 
 - name: RedHat
   include_tasks: redhat.yml
-  when: ansible_facts['os_family']|lower == 'redhat'
+  when: ansible_os_family|lower == 'redhat'
 
 - name: Ubuntu and debian
   include_tasks: ubuntu.yml
-  when: ansible_facts['os_family']|lower == 'debian'
+  when: ansible_os_family|lower == 'debian'
 
 - name: Windows Server and Workstation
   include_tasks: windows.yml
-  when: ansible_facts['os_family']|lower == 'windows'
+  when: ansible_os_family|lower == 'windows'
