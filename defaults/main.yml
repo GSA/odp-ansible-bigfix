@@ -1,7 +1,7 @@
 ---
 
 # Common Parameters
-bigfix_server_url: "http://bigfixlab.gsa.gov:52311"
+bigfix_server_url:
 
 ## Linux OS parameters
 linux_agent_install_path: /etc/opt/BESClient
@@ -12,4 +12,5 @@ windows_agent_install_path: "C:\\Program Files (x86)\\BigFix Enterprise\\BES Cli
 windows_agent_log_path: "C:\\Temp\\Logs" 
 
 BIGFIX_AGENT_PACKAGE_NAME:
- 
+GSA_FISMA_System_ID: "Test"
+GSA_Patch_Group: "Test"
