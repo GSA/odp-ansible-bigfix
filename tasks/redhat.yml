@@ -13,12 +13,14 @@
     state: stopped
     enabled: false
   when: existing_installations
+  ignore_errors: yes
 
 - name: Uninstall existing BigFix agent
   yum:
     name: BESAgent
     state: absent
   when: existing_installations
+  ignore_errors: yes
 
 - name: Create necessary folders
   file:
