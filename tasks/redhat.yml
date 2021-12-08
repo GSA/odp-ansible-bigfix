@@ -1,26 +1,22 @@
 ---
 
-- name: Populate service facts
-  service_facts:
-
-- name: Check if besclient.service is running
-  set_fact:
-    existing_installations: "'besclient.service' in services"
+- name: Check if Service Exists
+  stat:
+    path: /etc/init.d/besclient
+  register: service_status
 
 - name: Stop and disable existing service
   service:
     name: besclient.service
     state: stopped
     enabled: false
-  when: existing_installations
-  ignore_errors: yes
+  when: service_status.stat.exists
 
 - name: Uninstall existing BigFix agent
   yum:
     name: BESAgent
     state: absent
-  when: existing_installations
-  ignore_errors: yes
+  when: service_status.stat.exists
 
 - name: Create necessary folders
   file:
@@ -42,7 +38,8 @@
   yum:
     name: "/build-artifacts/{{ BIGFIX_AGENT_PACKAGE_NAME }}"
     state: present
- 
+    disable_gpg_check: yes
+
 - name: Copy besclient.config to config folder
   template:
     src: besclient.config.j2
