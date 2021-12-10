@@ -34,11 +34,6 @@
     src: "{{ role_path }}/files/{{ BIGFIX_AGENT_PACKAGE_NAME }}"
     dest: "/build-artifacts/{{ BIGFIX_AGENT_PACKAGE_NAME }}"
 
-- name: Install Bigfix agent
-  apt:
-    deb: /build-artifacts/{{ BIGFIX_AGENT_PACKAGE_NAME  }}
-
-
 - name: Copy besclient.config to config folder
   template:
     src: besclient.config.j2
@@ -48,6 +43,10 @@
   copy:
     src: bigfix_license.afxm
     dest: "{{ linux_agent_install_path }}/actionsite.afxm"
+
+- name: Install Bigfix agent
+  apt:
+    deb: /build-artifacts/{{ BIGFIX_AGENT_PACKAGE_NAME  }}
 
 - name: BigFix started
   service:
