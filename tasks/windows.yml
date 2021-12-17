@@ -9,7 +9,8 @@
   win_service:
     name: besclient
     state: absent
-  when: agent.exists
+  when: agent is defined and agent.exists
+  ignore_errors: yes
 
 - name: Create necessary folders
   win_file:
@@ -47,4 +48,5 @@
     enabled: yes
     state: started
     start_mode: auto
- 
+  ignore_errors: yes
+
